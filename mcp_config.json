@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "prompt-server": {
+      "command": "ts-node",
+      "args": [
+        "src/index.ts"
+      ],
+      "env": {}
+    }
+  }
+}

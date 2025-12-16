@@ -1,0 +1,51 @@
+{
+  "name": "dev-prompt-mcp",
+  "version": "1.0.0",
+  "description": "MCP服务器，提供预设的prompt工具来引导Claude执行任务",
+  "main": "dist/index.js",
+  "bin": {
+    "dev-prompt-mcp": "dist/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "dev:inspector": "DANGEROUSLY_OMIT_AUTH=true npx @modelcontextprotocol/inspector tsx src/index.ts",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "prepublishOnly": "pnpm run build"
+  },
+  "files": [
+    "dist",
+    "src/prompts"
+  ],
+  "keywords": [
+    "mcp",
+    "claude",
+    "prompt",
+    "ai",
+    "model-context-protocol"
+  ],
+  "author": "sayll",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sayll/dev-prompt-mcp.git"
+  },
+  "homepage": "https://github.com/sayll/dev-prompt-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/sayll/dev-prompt-mcp/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.3",
+    "fs-extra": "^11.2.0",
+    "yaml": "^2.3.4",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^25.0.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

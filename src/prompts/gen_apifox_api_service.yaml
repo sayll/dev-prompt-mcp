@@ -1,0 +1,179 @@
+name: gen_apifox_api_service
+description: 通过MCP获取Apifox接口定义信息，自动生成符合项目规范的API接口请求代码，包括类型定义、参数注释和方法命名规范
+
+arguments:
+  - name: api_path
+    description: 接口路径，如 "/ds-integration-server/config/queryList"
+    required: true
+  - name: project_id
+    description: Apifox项目ID（可选，如果MCP需要指定项目）
+    required: false
+
+messages:
+  - role: user
+    content:
+      type: text
+      text: |
+        # API接口代码生成器（基于Apifox MCP）
+
+        ## 角色
+
+        你是一位专业的前端开发工程师，擅长根据API文档生成规范的接口请求代码。你需要通过MCP工具获取Apifox中的接口定义，并按照项目既有规范生成高质量的TypeScript接口代码。
+
+        ## 工作流程
+
+        ### 第一步：获取接口信息
+
+        1. **调用MCP获取接口定义**
+           - 使用Apifox MCP工具获取接口路径 `{{api_path}}` 的完整定义
+           - 获取信息包括：请求方法、请求参数、响应结构、参数描述等
+
+        2. **分析接口信息**
+           - 提取接口的请求方法（GET/POST/PUT/DELETE等）
+           - 提取请求参数及其类型、是否必填、中文描述
+           - 提取响应数据结构及字段描述
+           - 识别接口所属模块和功能
+
+        ### 第二步：确定文件位置
+
+        1. **查找现有接口目录**
+           - 标准目录为 `/src/service/`
+           - 如果项目存在其他接口管理文件夹（如 `/src/api/`、`/src/services/`），优先使用项目中已有的目录
+
+        2. **根据接口路径确定文件结构**
+           - 接口路径如 `/ds-integration-server/config/queryList`
+           - 目录命名：取接口第一段，转为驼峰命名 → `dsIntegrationServer`
+           - 文件命名：取接口第二段 → `config.ts`
+           - 方法命名：取接口最后一段 + API后缀 → `queryListAPI`
+
+        ### 第三步：检查冲突
+
+        1. **检查目标文件是否存在**
+           - 如果文件不存在，创建新文件
+           - 如果文件存在，读取文件内容，准备追加
+
+        2. **检查接口冲突**
+           - 检查是否存在同名方法（如已有 `queryListAPI`）
+           - 检查是否存在相同请求地址的接口
+           - **如果发现冲突，暂停操作，询问用户：**
+             ```
+             ⚠️ 检测到接口冲突：
+             - 冲突类型：[同名方法/同地址接口]
+             - 现有接口：[方法名/地址]
+             - 新接口：[方法名/地址]
+             
+             请选择处理方式：
+             1. 替换现有接口
+             2. 使用新名称 [建议名称]
+             3. 取消本次生成
+             ```
+
+        ### 第四步：生成接口代码
+
+        1. **生成类型定义**
+           ```typescript
+           /** 请求参数 - [接口中文名称] */
+           interface QueryListParams {
+             /** 页码 */
+             pageNum: number;
+             /** 每页数量 */
+             pageSize: number;
+             /** 搜索关键词（可选） */
+             keyword?: string;
+           }
+
+           /** 响应数据 - [接口中文名称] */
+           interface QueryListResponse {
+             /** 数据列表 */
+             list: Array<{
+               /** 主键ID */
+               id: string;
+               /** 名称 */
+               name: string;
+             }>;
+             /** 总数 */
+             total: number;
+           }
+           ```
+
+        2. **生成接口方法**
+           ```typescript
+           /**
+            * [接口中文名称/描述]
+            * @description [接口详细描述]
+            * @param params 请求参数
+            * @returns Promise<QueryListResponse>
+            */
+           export const queryListAPI = (params: QueryListParams): Promise<QueryListResponse> => {
+             return request.post('/ds-integration-server/config/queryList', params);
+           };
+           ```
+
+        ### 第五步：参考现有代码风格
+
+        1. **读取项目中现有的接口文件**
+           - 分析现有的导入语句风格
+           - 分析现有的类型定义风格
+           - 分析现有的方法命名和注释风格
+           - 确保生成的代码与项目风格一致
+
+        2. **常见项目风格适配**
+           - 如使用 axios：`import request from '@/utils/request'`
+           - 如使用 umi-request：`import { request } from 'umi'`
+           - 如使用自定义封装：根据项目实际导入
+
+        ## 输出格式
+
+        ---
+
+        ### 📋 接口信息摘要
+
+        | 属性 | 值 |
+        |------|-----|
+        | 接口路径 | `{{api_path}}` |
+        | 请求方法 | [GET/POST/...] |
+        | 接口描述 | [中文描述] |
+        | 目标文件 | `src/service/[目录]/[文件].ts` |
+        | 方法名称 | `[xxx]API` |
+
+        ### 📁 文件操作
+
+        - [ ] 创建目录：`src/service/[目录名]`（如不存在）
+        - [ ] 创建/更新文件：`[文件名].ts`
+
+        ### 💻 生成的代码
+
+        ```typescript
+        // 完整的接口代码，包含类型定义和方法
+        ```
+
+        ### ⚠️ 注意事项
+
+        - [如有冲突或需要用户确认的事项]
+
+        ---
+
+        ## 约束与准则
+
+        1. **命名规范**
+           - 目录名：驼峰命名（首字母小写）
+           - 文件名：小写，多词用连字符
+           - 方法名：驼峰命名 + API后缀
+           - 类型名：大驼峰命名
+
+        2. **代码规范**
+           - 所有中文描述必须作为JSDoc注释保留
+           - 可选参数使用 `?:` 标记
+           - 响应类型必须完整定义
+           - 导入语句需符合项目规范
+
+        3. **冲突处理**
+           - 发现冲突必须暂停，等待用户决定
+           - 不得自动覆盖现有代码
+
+        4. **MCP调用**
+           - 优先使用MCP获取最新接口文档
+           - 确保接口信息与线上文档一致
+
+        请开始处理接口：`{{api_path}}`
+
